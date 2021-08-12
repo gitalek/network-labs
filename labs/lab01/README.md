@@ -477,3 +477,129 @@ S1(config-line)#
 ![](images/02_ip_configuration_pc-a.png)
 
 ## 3. Проверка сетевых подключений
+
+### 3.1 Отобразите конфигурацию коммутатора.
+
+> 1.b Проверьте параметры VLAN 1.
+
+```shell
+S1#show interfaces vlan 1
+Vlan1 is up, line protocol is up
+  Hardware is CPU Interface, address is 0001.c9e5.2c33 (bia 0001.c9e5.2c33)
+  Internet address is 192.168.1.2/24
+  MTU 1500 bytes, BW 100000 Kbit, DLY 1000000 usec,
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation ARPA, loopback not set
+  ARP type: ARPA, ARP Timeout 04:00:00
+  Last input 21:40:21, output never, output hang never
+  Last clearing of "show interface" counters never
+  Input queue: 0/75/0/0 (size/max/drops/flushes); Total output drops: 0
+  Queueing strategy: fifo
+  Output queue: 0/40 (size/max)
+  5 minute input rate 0 bits/sec, 0 packets/sec
+  5 minute output rate 0 bits/sec, 0 packets/sec
+     1682 packets input, 530955 bytes, 0 no buffer
+     Received 0 broadcasts (0 IP multicast)
+     0 runts, 0 giants, 0 throttles
+     0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored
+     563859 packets output, 0 bytes, 0 underruns
+     0 output errors, 23 interface resets
+     0 output buffer failures, 0 output buffers swapped out
+
+S1#
+```
+
+> Какова полоса пропускания этого интерфейса?
+
+`BW 100000 Kbit`
+
+> В каком состоянии находится VLAN 1?
+
+`Vlan1 is up`
+
+> В каком состоянии находится канальный протокол?
+
+`line protocol is up`
+
+## 3.2 Протестируйте сквозное соединение, отправив эхо-запрос.
+
+2.a В командной строке компьютера PC-A с помощью утилиты ping проверьте связь сначала с адресом PC-A.
+
+```shell
+C:\>ping 192.168.1.10
+
+Pinging 192.168.1.10 with 32 bytes of data:
+
+Reply from 192.168.1.10: bytes=32 time=4ms TTL=128
+Reply from 192.168.1.10: bytes=32 time=2ms TTL=128
+Reply from 192.168.1.10: bytes=32 time=2ms TTL=128
+Reply from 192.168.1.10: bytes=32 time=3ms TTL=128
+
+Ping statistics for 192.168.1.10:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 2ms, Maximum = 4ms, Average = 2ms
+
+C:\>
+```
+
+2.b Из командной строки компьютера PC-A отправьте эхо-запрос на административный адрес интерфейса SVI коммутатора S1.
+
+```shell
+C:\>ping 192.168.1.2
+
+Pinging 192.168.1.2 with 32 bytes of data:
+
+Request timed out.
+Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
+Reply from 192.168.1.2: bytes=32 time=3ms TTL=255
+Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
+
+Ping statistics for 192.168.1.2:
+    Packets: Sent = 4, Received = 3, Lost = 1 (25% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 3ms, Average = 1ms
+C:\>
+```
+
+Поскольку компьютеру PC-A нужно преобразовать МАС-адрес коммутатора S1 с помощью ARP, время ожидания передачи первого пакета может истечь.
+
+```shell
+C:\>ping 192.168.1.2
+
+Pinging 192.168.1.2 with 32 bytes of data:
+
+Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
+Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
+Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
+Reply from 192.168.1.2: bytes=32 time<1ms TTL=255
+
+Ping statistics for 192.168.1.2:
+Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+Minimum = 0ms, Maximum = 0ms, Average = 0ms
+
+C:\>
+```
+
+## 3.3 Проверьте удаленное управление коммутатором S1.
+
+После этого используйте удаленный доступ к устройству с помощью Telnet. В этой лабораторной работе устройства PC-A и S1 расположены рядом. В производственной сети коммутатор может находиться в коммутационном шкафу на последнем этаже, в то время как административный компьютер находится на первом этаже. На данном этапе вам предстоит использовать Telnet для удаленного доступа к коммутатору S1 через его административный адрес SVI. Telnet — это не безопасный протокол, но вы можете использовать его для проверки удаленного доступа. В случае с Telnet вся информация, включая пароли и команды, отправляется через сеанс в незашифрованном виде. В последующих лабораторных работах вы будете использовать протокол SSH для удаленного доступа к сетевым устройствам.
+
+> 3.a Откройте Tera Term или другую программу эмуляции терминала с возможностью Telnet. 
+> 3.b Выберите сервер Telnet и укажите адрес управления SVI для подключения к S1.  Пароль: cisco.
+> 3.c После ввода пароля cisco вы окажетесь в командной строке пользовательского режима. Для перехода в исполнительский режим EXEC введите команду enable и используйте секретный пароль class.
+> 3.d Сохраните конфигурацию.
+> 3.e Чтобы завершить сеанс Telnet, введите exit.
+
+![](images/03_telnet_connection.png)
+
+## Вопросы для повторения
+
+> 1 Зачем необходимо настраивать пароль VTY для коммутатора?
+
+Чтобы иметь удалённый доступ к устройству (в противовес прямому подключению через консольный порт).
+
+> 2 Что нужно сделать, чтобы пароли не отправлялись в незашифрованном виде?
+
+Использовать защищённый протокол `SSH`.
