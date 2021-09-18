@@ -158,6 +158,7 @@ R1(config)#username admin secret Adm1nP @55
 > b. Измените способ входа в систему таким образом, чтобы использовалась проверка пользователей по локальной базе учетных записей.
 
 ```shell
+R1(config)#ip ssh version 2
 R1(config)#line vty 0 4
 R1(config-line)#transport input ssh
 R1(config-line)#login local
@@ -306,6 +307,7 @@ S1(config)#username admin secret Adm1nP @55
 > 2.f Измените способ входа в систему таким образом, чтобы использовалась проверка пользователей по локальной базе учетных записей.
 
 ```shell
+R1(config)#ip ssh version 2
 S1(config)#line vty 0 4
 S1(config-line)#transport input telnet
 S1(config-line)#transport input ssh
